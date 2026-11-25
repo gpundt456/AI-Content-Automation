@@ -1,0 +1,881 @@
+{
+  "name": "Telegram Trigger (github)",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -816,
+        -176
+      ],
+      "id": "fc394785-da02-4385-9455-13ddcfea1fc1",
+      "name": "Telegram Trigger",
+      "webhookId": "bb68a334-563c-43fe-ac50-12547f0f10b9"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "725f90c6-c1ca-4a8b-aed2-d5928646f568",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "Stop",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -560,
+        -176
+      ],
+      "id": "d6d749ad-467e-4382-9d2e-2cdd46fb28df",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "command": "powershell.exe -Command \"Get-Process | Where-Object {$_.ProcessName -like '*ollama*'} | Stop-Process -Force\""
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        -192
+      ],
+      "id": "995484b6-155d-40bf-b857-03b0afcb9707",
+      "name": "kill ollama1",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 1.25,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1744,
+        832
+      ],
+      "id": "89b4dab7-964e-4b48-ae0f-be8283017140",
+      "name": "Wait4",
+      "webhookId": "47645eaf-13ad-444b-8840-9b50d70d3567"
+    },
+    {
+      "parameters": {
+        "command": "powershell.exe -Command \"Start-Process 'C:\\YOUR_COMFYUI_PORTABLE_FOLDER\\python_embeded\\python.exe' -ArgumentList '-s C:\\YOUR_COMFYUI_PORTABLE_FOLDER\\ComfyUI\\main.py --windows-standalone-build --lowvram --disable-auto-launch' -WindowStyle Minimized\""
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        912,
+        1008
+      ],
+      "id": "9adc2c51-0a41-4e71-89b9-ef67338d7a2b",
+      "name": "turn 8188 back on"
+    },
+    {
+      "parameters": {
+        "command": "powershell.exe -Command \"Get-Process | Where-Object {$_.ProcessName -like '*ollama*'} | Stop-Process -Force\""
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        1024
+      ],
+      "id": "d66f2830-cccc-4728-99e5-c90d2e2f2e8f",
+      "name": "kill ollama",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "command": "powershell.exe -Command \"Start-Process 'ollama' -ArgumentList 'serve' -WindowStyle Minimized\""
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1472,
+        1024
+      ],
+      "id": "4986c927-8fad-48dd-8010-dae5f8135b5a",
+      "name": "turn ollama on"
+    },
+    {
+      "parameters": {
+        "command": "cmd.exe /c \"FOR /F \"tokens=5\" %P IN ('netstat -aon ^| findstr :8188 ^| findstr LISTENING') DO IF NOT \"%P\"==\"0\" taskkill /F /PID %P\""
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        688,
+        1008
+      ],
+      "id": "c631797d-4de0-47ec-a1f7-a10aec41db8f",
+      "name": "Kill 8188",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "Starting bedtime",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -272,
+        704
+      ],
+      "id": "04c5eefe-bdf0-4f74-aba6-d7d56d740c6a",
+      "name": "Send a text message",
+      "webhookId": "b991fb5d-972a-4e15-beab-055ca59c2139",
+      "retryOnFail": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "520b228c-c516-4813-ba5f-244b22728671",
+              "leftValue": "={{ $('check localports').item.json['8188'] }}",
+              "rightValue": "running",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        480,
+        880
+      ],
+      "id": "651e111f-47d2-4161-bd74-75c1057d1f56",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "520b228c-c516-4813-ba5f-244b22728671",
+              "leftValue": "={{ $('check localports').item.json['11434'] }}",
+              "rightValue": "running",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1104,
+        864
+      ],
+      "id": "71f5c8cc-c2f4-43bd-a046-b61c25449aa6",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cdbd50e0-760b-43ff-8b7e-cc8017283693",
+              "leftValue": "={{ $json['8188'] }}",
+              "rightValue": "running",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "803b5b8e-35b0-447c-9322-a023c9b2e215",
+              "leftValue": "={{ $json['11434'] }}",
+              "rightValue": "running",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        112,
+        704
+      ],
+      "id": "bfa23e75-63d5-4ebb-b3ee-a7a39fc95c15",
+      "name": "if something isnt running"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        1008
+      ],
+      "id": "d2d96518-0283-41c9-8e0b-2f50f2a68e3f",
+      "name": "Wait1",
+      "webhookId": "47645eaf-13ad-444b-8840-9b50d70d3567"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1344,
+        1024
+      ],
+      "id": "67d0c3d5-7b40-4ef5-96c3-bc5fa7fb49b2",
+      "name": "Wait2",
+      "webhookId": "47645eaf-13ad-444b-8840-9b50d70d3567"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cdbd50e0-760b-43ff-8b7e-cc8017283693",
+              "leftValue": "={{ $json['8188'] }}",
+              "rightValue": "running",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "803b5b8e-35b0-447c-9322-a023c9b2e215",
+              "leftValue": "={{ $json['11434'] }}",
+              "rightValue": "running",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        256,
+        848
+      ],
+      "id": "e672fd5a-c305-458e-8841-09de215b84ea",
+      "name": "if everything's running"
+    },
+    {
+      "parameters": {
+        "chatId": "REPLACE_WITH_YOUR_TELEGRAM_CHAT_ID",
+        "text": "Something had to be restarted please wait about 1 minute.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1600,
+        832
+      ],
+      "id": "594a60f9-b426-44c2-b701-e71b81defba0",
+      "name": "Send a text message1",
+      "webhookId": "b991fb5d-972a-4e15-beab-055ca59c2139",
+      "retryOnFail": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "725f90c6-c1ca-4a8b-aed2-d5928646f568",
+              "leftValue": "={{ $('Telegram Trigger').item.json.message.text }}",
+              "rightValue": "bedtime",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -560,
+        720
+      ],
+      "id": "1451c0f8-269b-4b26-8b98-8bcbac526c4a",
+      "name": "If7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $input.first().json.stdout.trim();\nconst [used, total] = output.split(',').map(v => parseInt(v.trim(), 10));\n\nreturn [{\n  json: {\n    vram_used_mb: used,\n    vram_total_mb: total,\n    vram_free_mb: total - used,\n    vram_used_pct: Math.round((used / total) * 100)\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -368,
+        240
+      ],
+      "id": "9b05f28d-2ce4-4566-854b-0c143f28052b",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "725f90c6-c1ca-4a8b-aed2-d5928646f568",
+              "leftValue": "={{ $json.vram_used_mb }}",
+              "rightValue": 1800,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -208,
+        240
+      ],
+      "id": "2a7d0c01-8412-417e-9f07-ae66a9487217",
+      "name": "If9"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+        "text": "=vram is  {{ $('Code in JavaScript').item.json.vram_used_mb }} hold on or Restart.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        48,
+        224
+      ],
+      "id": "4fa2b89a-6738-41f0-bdeb-35c84fead60a",
+      "name": "Send a text message2",
+      "webhookId": "b991fb5d-972a-4e15-beab-055ca59c2139",
+      "retryOnFail": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "command": "nvidia-smi --query-gpu=memory.used,memory.total --format=csv,noheader,nounits"
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        240
+      ],
+      "id": "6862762b-bfb9-4b4b-9f27-efaad718d5ca",
+      "name": "check vram usage",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        1024
+      ],
+      "id": "ff1abe4f-9871-45e0-b235-62689b7e8ed0",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "SELECT_YOUR_IMPORTED_CONTENT_WORKFLOW",
+          "mode": "list",
+          "cachedResultName": "Select content workflow after import"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2016,
+        736
+      ],
+      "id": "a41826f2-d4ae-47ff-ba84-36c9cae496c5",
+      "name": "start bedtime",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "command": "cmd.exe /c \"FOR /F \"tokens=5\" %P IN ('netstat -aon ^| findstr :8188 ^| findstr LISTENING') DO IF NOT \"%P\"==\"0\" taskkill /F /PID %P\""
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        -192
+      ],
+      "id": "4ee500ff-babb-479c-a1ff-852ca913d487",
+      "name": "Kill port 8188",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const services = [\n  { key: \"8188\", url: \"http://127.0.0.1:8188/\" },\n  { key: \"8189\", url: \"http://127.0.0.1:8189/\" },\n  { key: \"11434\", url: \"http://127.0.0.1:11434/\" },\n];\n\nconst output = {};\n\nawait Promise.all(\n  services.map(async ({ key, url }) => {\n    try {\n      await this.helpers.httpRequest({\n        method: \"GET\",\n        url: url,\n        timeout: 3000,\n        ignoreHttpStatusErrors: true,\n      });\n      output[key] = \"running\";\n    } catch (err) {\n      output[key] = \"offline\";\n    }\n  })\n);\n\nreturn [{ json: output }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        704
+      ],
+      "id": "22733b3e-c3e1-4719-9c93-0b9fc3a81cc7",
+      "name": "check localports"
+    },
+    {
+      "parameters": {
+        "content": "# Check if Local Apps are Running and Start Workflow With Keyword",
+        "height": 624,
+        "width": 2832,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        592
+      ],
+      "id": "e73f2386-601a-49f1-b560-64d0b934f915",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# Check Current GPU Vram Usage",
+        "height": 272,
+        "width": 864,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        144
+      ],
+      "id": "5ab51816-2a4c-4684-ba12-47194a2252dd",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# If \"Stop\" is Sent Close the Local Apps to Force an Error in Workflow",
+        "height": 288,
+        "width": 896,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        -304
+      ],
+      "id": "d6f0b661-330d-48d8-8644-b12b19ee9eec",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "kill ollama1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "check vram usage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "kill ollama1": {
+      "main": [
+        [
+          {
+            "node": "Kill port 8188",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait4": {
+      "main": [
+        [
+          {
+            "node": "start bedtime",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "turn 8188 back on": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "kill ollama": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "turn ollama on": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kill 8188": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "check localports",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Kill 8188",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "kill ollama",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if something isnt running": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "if everything's running",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "turn 8188 back on",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "turn ollama on",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if everything's running": {
+      "main": [
+        [
+          {
+            "node": "start bedtime",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message1": {
+      "main": [
+        [
+          {
+            "node": "Wait4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If7": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If9": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check vram usage": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kill port 8188": {
+      "main": [
+        []
+      ]
+    },
+    "check localports": {
+      "main": [
+        [
+          {
+            "node": "if something isnt running",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "tags": []
+}

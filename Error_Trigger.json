@@ -1,0 +1,716 @@
+{
+  "name": "Error Trigger (github)",
+  "nodes": [
+    {
+      "parameters": {
+        "chatId": "REPLACE_WITH_YOUR_TELEGRAM_CHAT_ID",
+        "text": "Restarting",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        32,
+        16
+      ],
+      "id": "d0f6a5e7-044b-47ce-ba25-53fc9e7826c3",
+      "name": "Send a text message",
+      "webhookId": "a8650a6a-b8da-4cd9-a006-0c800cdfdebd",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -992,
+        64
+      ],
+      "id": "0fcd582e-1e81-4df4-b770-f29997d41fc7",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "chatId": "REPLACE_WITH_YOUR_TELEGRAM_CHAT_ID",
+        "message": "There was an error do you want to restart?",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Restart",
+            "disapproveLabel": "Stop"
+          }
+        },
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 2,
+              "resumeUnit": "minutes"
+            }
+          },
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -784,
+        64
+      ],
+      "id": "fe7ffe21-f907-48c2-a938-451115e9d87e",
+      "name": "Send message and wait for response",
+      "webhookId": "4a1c67e2-4aa9-4911-b22d-96493710a25d",
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "REPLACE_WITH_YOUR_TELEGRAM_CHAT_ID",
+        "text": "Stopped",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -160,
+        288
+      ],
+      "id": "c3e35d2b-03b2-4356-b2c3-80aa735bb7ee",
+      "name": "Send a text message1",
+      "webhookId": "a8650a6a-b8da-4cd9-a006-0c800cdfdebd",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "amount": 1.1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2048,
+        144
+      ],
+      "id": "62bf8f8b-006c-461b-9096-365df9b99dae",
+      "name": "Wait4",
+      "webhookId": "3a707e7f-e1d6-4f7c-a5d1-533666f54800"
+    },
+    {
+      "parameters": {
+        "command": "powershell.exe -Command \"Start-Process 'C:\\YOUR_COMFYUI_PORTABLE_FOLDER\\python_embeded\\python.exe' -ArgumentList '-s C:\\YOUR_COMFYUI_PORTABLE_FOLDER\\ComfyUI\\main.py --windows-standalone-build --lowvram --disable-auto-launch' -WindowStyle Minimized\""
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        320
+      ],
+      "id": "a4eeedcb-f16d-42ad-99f6-1cbee28ee010",
+      "name": "turn 8188 back on"
+    },
+    {
+      "parameters": {
+        "command": "powershell.exe -Command \"Get-Process | Where-Object {$_.ProcessName -like '*ollama*'} | Stop-Process -Force\""
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        336
+      ],
+      "id": "8feabc59-02ee-4e5d-bf68-d78c4b802194",
+      "name": "kill ollama",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "command": "powershell.exe -Command \"Start-Process 'ollama' -ArgumentList 'serve' -WindowStyle Minimized\""
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        1776,
+        336
+      ],
+      "id": "508a54fa-bfd5-430e-b63e-774ea588b7b6",
+      "name": "turn ollama on"
+    },
+    {
+      "parameters": {
+        "command": "cmd.exe /c \"FOR /F \"tokens=5\" %P IN ('netstat -aon ^| findstr :8188 ^| findstr LISTENING') DO IF NOT \"%P\"==\"0\" taskkill /F /PID %P\""
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        976,
+        320
+      ],
+      "id": "65a005cd-6d65-4919-9869-09d8c19fce20",
+      "name": "Kill 8188",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "520b228c-c516-4813-ba5f-244b22728671",
+              "leftValue": "={{ $('check ports').item.json['11434'] }}",
+              "rightValue": "running",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1408,
+        176
+      ],
+      "id": "de05820e-e3de-4c35-9794-81cb9dfa11be",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const services = [\n  { key: \"8188\", url: \"http://127.0.0.1:8188/\" },\n  { key: \"8189\", url: \"http://127.0.0.1:8189/\" },\n  { key: \"11434\", url: \"http://127.0.0.1:11434/\" },\n];\n\nconst output = {};\n\nawait Promise.all(\n  services.map(async ({ key, url }) => {\n    try {\n      await this.helpers.httpRequest({\n        method: \"GET\",\n        url: url,\n        timeout: 3000,\n        ignoreHttpStatusErrors: true,\n      });\n      output[key] = \"running\";\n    } catch (err) {\n      output[key] = \"offline\";\n    }\n  })\n);\n\nreturn [{ json: output }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        272,
+        16
+      ],
+      "id": "5ab7efdf-e6cf-419c-acbd-f715f46f705f",
+      "name": "check ports"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cdbd50e0-760b-43ff-8b7e-cc8017283693",
+              "leftValue": "={{ $json['8188'] }}",
+              "rightValue": "running",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "803b5b8e-35b0-447c-9322-a023c9b2e215",
+              "leftValue": "={{ $json['11434'] }}",
+              "rightValue": "running",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        432,
+        16
+      ],
+      "id": "8bf7e193-9bc9-4c38-b818-e0bd78c2e1df",
+      "name": "if something isnt running"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1088,
+        320
+      ],
+      "id": "54c1712b-927e-49dd-9974-1386698b0f32",
+      "name": "Wait1",
+      "webhookId": "3a707e7f-e1d6-4f7c-a5d1-533666f54800"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1648,
+        336
+      ],
+      "id": "b3629472-8e9a-4a99-b6e7-0ab65d061748",
+      "name": "Wait2",
+      "webhookId": "3a707e7f-e1d6-4f7c-a5d1-533666f54800"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cdbd50e0-760b-43ff-8b7e-cc8017283693",
+              "leftValue": "={{ $json['8188'] }}",
+              "rightValue": "running",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "803b5b8e-35b0-447c-9322-a023c9b2e215",
+              "leftValue": "={{ $json['11434'] }}",
+              "rightValue": "running",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        544,
+        160
+      ],
+      "id": "05a1e8d0-2759-4233-85e8-55a2099d779c",
+      "name": "if everything's running"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "520b228c-c516-4813-ba5f-244b22728671",
+              "leftValue": "={{ $('check ports').item.json['8188'] }}",
+              "rightValue": "running",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        768,
+        192
+      ],
+      "id": "62b89023-6067-4e23-9cc0-29a5e7734f5f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "REPLACE_WITH_YOUR_TELEGRAM_CHAT_ID",
+        "text": "Something had to be restarted please wait exactly 1 minute.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1904,
+        144
+      ],
+      "id": "f2cded96-576e-4a7f-b92e-5a2cc2e49d8a",
+      "name": "Send a text message2",
+      "webhookId": "a8650a6a-b8da-4cd9-a006-0c800cdfdebd",
+      "retryOnFail": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "SELECT_YOUR_IMPORTED_CONTENT_WORKFLOW",
+          "mode": "list",
+          "cachedResultName": "Select content workflow after import"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2384,
+        64
+      ],
+      "id": "a14cab78-a737-4ba9-956f-af1643f4976c",
+      "name": "start watchtime",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "725f90c6-c1ca-4a8b-aed2-d5928646f568",
+              "leftValue": "={{ $json.data }}",
+              "rightValue": "Restart",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -608,
+        64
+      ],
+      "id": "fd3aa5fa-a02f-4da6-a7a0-998a5de76355",
+      "name": "If There's a Response"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "725f90c6-c1ca-4a8b-aed2-d5928646f568",
+              "leftValue": "={{ $('Send message and wait for response').item.json.data.approved }}",
+              "rightValue": "Restart",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -400,
+        32
+      ],
+      "id": "63a49a62-d398-4ad0-981d-2718d365661c",
+      "name": "If Restart"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "check ports",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send message and wait for response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message and wait for response": {
+      "main": [
+        [
+          {
+            "node": "If There's a Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message1": {
+      "main": [
+        []
+      ]
+    },
+    "Wait4": {
+      "main": [
+        [
+          {
+            "node": "start watchtime",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "turn 8188 back on": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "kill ollama": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "turn ollama on": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kill 8188": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "kill ollama",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check ports": {
+      "main": [
+        [
+          {
+            "node": "if something isnt running",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if something isnt running": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "if everything's running",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "turn 8188 back on",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "turn ollama on",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if everything's running": {
+      "main": [
+        [
+          {
+            "node": "start watchtime",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Kill 8188",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message2": {
+      "main": [
+        [
+          {
+            "node": "Wait4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If There's a Response": {
+      "main": [
+        [
+          {
+            "node": "If Restart",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Restart": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "tags": []
+}

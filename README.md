@@ -1,4 +1,4 @@
-# AI Content Generation Automation
+# AI Content Automation
 
 **A locally hosted, Telegram-controlled AI video production pipeline built with n8n, ComfyUI, and Ollama, tested on an NVIDIA RTX 3080 (10 GB VRAM) with 32 GB system RAM.** It generates a set of short, vertical AI-influencer product promotion clips and sends them directly to my phone through Telegram. The clips can be combined in an editor such as CapCut into a TikTok Shop-style video.
 
